@@ -393,8 +393,24 @@ The caps are intentionally distinct so the demo clearly shows the scheduler enfo
 
 **Result**:
 
+Normally if sent without slice_ctrl_xapp service, it will use 100% of prb to implement that
 
+Example: UE receive 50mbps data in 60s
 
+![alt text](image/image-7.png)
+
+Example: UE and server transmit 5mbps in 60s
+
+![alt text](image/image-8.png)
+
+And this is the result with slice_ctrl_xapp enable:
+
+This is the first case when UE receive 50mbps UDP data 
+![alt text](image/image-9.png)
+
+This is the second case 
+
+![alt text](image/image-10.png)
 
 > **Restarting the simulation:** always do a full `compose down` before bringing everything back up, then recreate the namespace before running srsUE again:
 > ```bash
