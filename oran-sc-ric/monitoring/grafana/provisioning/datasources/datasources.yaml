@@ -1,0 +1,12 @@
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB-KPM
+    uid: influxdb-kpm
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    database: kpm
+    isDefault: true
+    jsonData:
+      httpMode: GET

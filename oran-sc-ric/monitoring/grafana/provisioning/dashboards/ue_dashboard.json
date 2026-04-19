@@ -1,0 +1,109 @@
+{
+  "title": "O-RAN Near-RT RIC — Per-UE",
+  "uid": "oran-kpm-ue",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "timezone": "browser",
+  "templating": {
+    "list": [
+      {
+        "name": "ue",
+        "label": "UE",
+        "type": "query",
+        "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+        "query": "SHOW TAG VALUES FROM \"kpm_ue\" WITH KEY = \"ue\"",
+        "refresh": 2,
+        "includeAll": true,
+        "allValue": ".*",
+        "multi": true,
+        "current": {}
+      }
+    ]
+  },
+  "panels": [
+
+    { "type": "row", "id": 1, "title": "Signal Quality per UE", "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 } },
+
+    { "type": "timeseries", "id": 2, "title": "CQI per UE",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+      "targets": [{
+        "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+        "query": "SELECT mean(\"CQI\") FROM \"kpm_ue\" WHERE $timeFilter AND \"ue\" =~ /^$ue$/ GROUP BY time($__interval), \"ue\" fill(null)",
+        "rawQuery": true, "resultFormat": "time_series"
+      }],
+      "fieldConfig": { "defaults": { "unit": "none", "min": 0, "max": 15,
+        "custom": { "lineWidth": 2, "fillOpacity": 10 },
+        "thresholds": { "mode": "absolute", "steps": [
+          { "color": "red", "value": null },
+          { "color": "yellow", "value": 6 },
+          { "color": "green", "value": 11 }
+        ]}}},
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } }},
+
+    { "type": "timeseries", "id": 3, "title": "RSRP per UE (encoded)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+      "targets": [{
+        "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+        "query": "SELECT mean(\"RSRP\") FROM \"kpm_ue\" WHERE $timeFilter AND \"ue\" =~ /^$ue$/ GROUP BY time($__interval), \"ue\" fill(null)",
+        "rawQuery": true, "resultFormat": "time_series"
+      }],
+      "fieldConfig": { "defaults": { "unit": "none",
+        "custom": { "lineWidth": 2, "fillOpacity": 10 } }},
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } }},
+
+    { "type": "row", "id": 10, "title": "Throughput per UE", "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 } },
+
+    { "type": "timeseries", "id": 11, "title": "DL Throughput per UE (kbps)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 10 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+      "targets": [{
+        "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+        "query": "SELECT mean(\"DRB_UEThpDl\") FROM \"kpm_ue\" WHERE $timeFilter AND \"ue\" =~ /^$ue$/ GROUP BY time($__interval), \"ue\" fill(null)",
+        "rawQuery": true, "resultFormat": "time_series"
+      }],
+      "fieldConfig": { "defaults": { "unit": "kbps", "custom": { "lineWidth": 2, "fillOpacity": 10 } }},
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } }},
+
+    { "type": "timeseries", "id": 12, "title": "UL Throughput per UE (kbps)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 10 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+      "targets": [{
+        "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+        "query": "SELECT mean(\"DRB_UEThpUl\") FROM \"kpm_ue\" WHERE $timeFilter AND \"ue\" =~ /^$ue$/ GROUP BY time($__interval), \"ue\" fill(null)",
+        "rawQuery": true, "resultFormat": "time_series"
+      }],
+      "fieldConfig": { "defaults": { "unit": "kbps", "custom": { "lineWidth": 2, "fillOpacity": 10 } }},
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } }},
+
+    { "type": "row", "id": 20, "title": "PRB Usage per UE", "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 } },
+
+    { "type": "timeseries", "id": 21, "title": "UL PRB Used per UE",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 19 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+      "targets": [{
+        "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+        "query": "SELECT mean(\"RRU_PrbUsedUl\") FROM \"kpm_ue\" WHERE $timeFilter AND \"ue\" =~ /^$ue$/ GROUP BY time($__interval), \"ue\" fill(null)",
+        "rawQuery": true, "resultFormat": "time_series"
+      }],
+      "fieldConfig": { "defaults": { "unit": "none", "custom": { "lineWidth": 2, "fillOpacity": 10 } }},
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } }},
+
+    { "type": "timeseries", "id": 22, "title": "DL RLC Delay per UE (ms)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 19 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+      "targets": [{
+        "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+        "query": "SELECT mean(\"DRB_RlcSduDelayDl\") FROM \"kpm_ue\" WHERE $timeFilter AND \"ue\" =~ /^$ue$/ GROUP BY time($__interval), \"ue\" fill(null)",
+        "rawQuery": true, "resultFormat": "time_series"
+      }],
+      "fieldConfig": { "defaults": { "unit": "ms", "custom": { "lineWidth": 2, "fillOpacity": 10 } }},
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } }}
+  ]
+}

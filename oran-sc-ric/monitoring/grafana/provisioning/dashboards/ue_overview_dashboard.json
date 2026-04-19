@@ -1,0 +1,150 @@
+{
+  "title": "O-RAN Near-RT RIC — UE Overview",
+  "uid": "oran-kpm-ue-overview",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "timezone": "browser",
+  "panels": [
+
+    { "type": "stat", "id": 50, "title": "Active UEs",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 0 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+      "targets": [{
+        "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+        "query": "SELECT count(distinct(\"ue\")) FROM (SELECT last(\"CQI\") FROM \"kpm_ue\" WHERE $timeFilter GROUP BY \"ue\")",
+        "rawQuery": true, "resultFormat": "time_series"
+      }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "none", "textMode": "value_and_name" },
+      "fieldConfig": { "defaults": { "displayName": "Active UEs", "unit": "none",
+        "thresholds": { "mode": "absolute", "steps": [
+          { "color": "blue", "value": null }
+        ]}}}},
+
+    { "type": "stat", "id": 51, "title": "UE IDs Online",
+      "gridPos": { "h": 4, "w": 20, "x": 4, "y": 0 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+      "targets": [{
+        "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+        "query": "SELECT last(\"CQI\") FROM \"kpm_ue\" WHERE $timeFilter GROUP BY \"ue\"",
+        "rawQuery": true, "resultFormat": "time_series"
+      }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "none", "textMode": "name", "orientation": "horizontal" },
+      "fieldConfig": { "defaults": { "unit": "none", "min": 0, "max": 15,
+        "thresholds": { "mode": "absolute", "steps": [
+          { "color": "red", "value": null },
+          { "color": "yellow", "value": 6 },
+          { "color": "green", "value": 11 }
+        ]}}}},
+
+    { "type": "row", "id": 1, "title": "Current State — All UEs", "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 4 } },
+
+    { "type": "table", "id": 2, "title": "UE Snapshot",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 5 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+      "targets": [
+        { "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+          "query": "SELECT last(\"CQI\") AS \"CQI\", last(\"DRB_UEThpDl\") AS \"DL_kbps\", last(\"DRB_UEThpUl\") AS \"UL_kbps\", last(\"RRU_PrbUsedUl\") AS \"PRB_UL\" FROM \"kpm_ue\" WHERE $timeFilter GROUP BY \"ue\"",
+          "rawQuery": true, "resultFormat": "table" }
+      ],
+      "options": { "sortBy": [{ "displayName": "CQI", "desc": true }] },
+      "fieldConfig": {
+        "defaults": { "custom": { "displayMode": "auto" } },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "CQI" },
+            "properties": [
+              { "id": "custom.displayMode", "value": "color-background" },
+              { "id": "thresholds", "value": { "mode": "absolute", "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 6 },
+                  { "color": "green", "value": 11 }
+                ]}},
+              { "id": "min", "value": 0 }, { "id": "max", "value": 15 }
+            ]},
+          { "matcher": { "id": "byName", "options": "DL_kbps" },
+            "properties": [{ "id": "unit", "value": "kbps" }]},
+          { "matcher": { "id": "byName", "options": "UL_kbps" },
+            "properties": [{ "id": "unit", "value": "kbps" }]}
+        ]
+      }},
+
+    { "type": "row", "id": 10, "title": "Signal Quality — All UEs", "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 } },
+
+    { "type": "timeseries", "id": 11, "title": "CQI — All UEs",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 10 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+      "targets": [{
+        "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+        "query": "SELECT mean(\"CQI\") FROM \"kpm_ue\" WHERE $timeFilter GROUP BY time($__interval), \"ue\" fill(null)",
+        "rawQuery": true, "resultFormat": "time_series"
+      }],
+      "fieldConfig": { "defaults": { "unit": "none", "min": 0, "max": 15,
+        "custom": { "lineWidth": 2, "fillOpacity": 5 } }},
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } }},
+
+    { "type": "timeseries", "id": 12, "title": "RSRP — All UEs",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 10 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+      "targets": [{
+        "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+        "query": "SELECT mean(\"RSRP\") FROM \"kpm_ue\" WHERE $timeFilter GROUP BY time($__interval), \"ue\" fill(null)",
+        "rawQuery": true, "resultFormat": "time_series"
+      }],
+      "fieldConfig": { "defaults": { "unit": "none",
+        "custom": { "lineWidth": 2, "fillOpacity": 5 } }},
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } }},
+
+    { "type": "row", "id": 20, "title": "Throughput — All UEs", "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 } },
+
+    { "type": "timeseries", "id": 21, "title": "DL Throughput — All UEs (kbps)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 19 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+      "targets": [{
+        "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+        "query": "SELECT mean(\"DRB_UEThpDl\") FROM \"kpm_ue\" WHERE $timeFilter GROUP BY time($__interval), \"ue\" fill(null)",
+        "rawQuery": true, "resultFormat": "time_series"
+      }],
+      "fieldConfig": { "defaults": { "unit": "kbps", "custom": { "lineWidth": 2, "fillOpacity": 5 } }},
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } }},
+
+    { "type": "timeseries", "id": 22, "title": "UL Throughput — All UEs (kbps)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 19 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+      "targets": [{
+        "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+        "query": "SELECT mean(\"DRB_UEThpUl\") FROM \"kpm_ue\" WHERE $timeFilter GROUP BY time($__interval), \"ue\" fill(null)",
+        "rawQuery": true, "resultFormat": "time_series"
+      }],
+      "fieldConfig": { "defaults": { "unit": "kbps", "custom": { "lineWidth": 2, "fillOpacity": 5 } }},
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } }},
+
+    { "type": "row", "id": 30, "title": "PRB & Delay — All UEs", "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 27 } },
+
+    { "type": "timeseries", "id": 31, "title": "UL PRB Used — All UEs",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 28 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+      "targets": [{
+        "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+        "query": "SELECT mean(\"RRU_PrbUsedUl\") FROM \"kpm_ue\" WHERE $timeFilter GROUP BY time($__interval), \"ue\" fill(null)",
+        "rawQuery": true, "resultFormat": "time_series"
+      }],
+      "fieldConfig": { "defaults": { "unit": "none", "custom": { "lineWidth": 2, "fillOpacity": 5 } }},
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } }},
+
+    { "type": "timeseries", "id": 32, "title": "DL RLC Delay — All UEs (ms)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 28 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+      "targets": [{
+        "datasource": { "type": "influxdb", "uid": "influxdb-kpm" },
+        "query": "SELECT mean(\"DRB_RlcSduDelayDl\") FROM \"kpm_ue\" WHERE $timeFilter GROUP BY time($__interval), \"ue\" fill(null)",
+        "rawQuery": true, "resultFormat": "time_series"
+      }],
+      "fieldConfig": { "defaults": { "unit": "ms", "custom": { "lineWidth": 2, "fillOpacity": 5 } }},
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } }}
+  ]
+}

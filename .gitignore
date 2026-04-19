@@ -1,0 +1,74 @@
+# Build outputs
+build/
+build_*/
+_build/
+out/
+dist/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+cmake_uninstall.cmake
+CPackConfig.cmake
+CPackSourceConfig.cmake
+CTestTestfile.cmake
+*.cmake
+!CMakeLists.txt
+Makefile
+
+# Compiled binaries & libraries
+*.o
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.out
+
+# Logs
+*.log
+logs/
+log/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.eggs/
+venv/
+.venv/
+env/
+
+# Docker volumes / runtime data
+data/
+volumes/
+*.pid
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# oran-sc-ric bundles its own srsRAN_Project copy — already a root submodule
+oran-sc-ric/srsRAN_Project/
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
