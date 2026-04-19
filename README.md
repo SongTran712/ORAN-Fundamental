@@ -2,7 +2,9 @@
 
 Fundamental - Opensource - Setup - Implementation - Result
 
-#### Fundamental
+---
+
+## 📡 Fundamental
 
 O-RAN is deployed on top of 3GPP. 3GPP is the standard for mobile communication architecture, consisting of 3 main parts: RU, DU, and CU, where
 
@@ -23,7 +25,7 @@ Traditionally, all of these functions are compressed into a black box that only 
 
 ![alt text](image/image-1.png)
 
-#### Near-RT RIC
+### Near-RT RIC
 
 The Near-RT RIC operates on a control loop of **10 ms – 1 s**. It sits between the gNB and the non-RT RIC and is responsible for fine-grained, fast decisions like:
 
@@ -40,7 +42,7 @@ The gNB side of this connection is called the **E2 Agent** — a built-in compon
 
 xApps on the Near-RT RIC subscribe to data streams from the E2 Agent and send control commands back — all within sub-second latency.
 
-#### Non-RT RIC
+### Non-RT RIC
 
 The Non-RT RIC operates on a control loop of **> 1 s** (typically seconds to minutes). It lives inside the **Service Management and Orchestration (SMO)** layer, above the Near-RT RIC, and handles slower, higher-level decisions:
 
@@ -49,7 +51,9 @@ The Non-RT RIC operates on a control loop of **> 1 s** (typically seconds to min
 - Long-term network optimization (capacity planning, energy saving)
 
 
-## Architecture
+---
+
+## 🏗️ Architecture
 
 ![alt text](image/image-2.png)
 
@@ -79,9 +83,11 @@ The interfaces that make O-RAN "open":
 | Xn | gNB ↔ gNB | Inter-gNB handover coordination |
 | NGAP | gNB → AMF (5GC) | UE registration, session management |
 
-## Setup
+---
 
-#### 1. Configure IPs and versions
+## ⚙️ Setup
+
+### 1. Configure IPs and versions
 
 All service IPs and versions are defined in `oran-sc-ric/.env`. Edit this file before starting anything:
 
@@ -102,7 +108,7 @@ SLICE_CTRL_XAPP_IP=10.0.2.21
 
 The gNB config (`e2-agents/srsRAN/gnb_zmq.yaml`) must point to `E2TERM_IP:36421` — if you change the IP here, update it there too.
 
-#### 2. Start RIC services (in dependency order)
+### 2. Start RIC services (in dependency order)
 
 Docker Compose handles the order automatically, but understanding the dependency chain matters when debugging:
 
@@ -134,7 +140,7 @@ Verify all containers are healthy:
 docker compose ps
 ```
 
-#### 3. Build and start the gNB
+### 3. Build and start the gNB
 
 The gNB runs as a **Docker container** (not on the host) so it can reach both the RIC network and the RAN network directly. It is built from source inside the container using `srsRAN_Project/`.
 
@@ -149,7 +155,7 @@ Once running, the gNB container will:
 - Connect to RIC (e2term) at `10.0.2.10:36421` over SCTP — same Docker network
 - Open ZMQ on `tcp://0.0.0.0:2000`, reachable from host via `host.docker.internal`
 
-#### 4. Build and start srsUE
+### 4. Build and start srsUE
 
 srsUE runs **natively on the host** (not in Docker) because it needs a TUN interface for real IP traffic.
 
@@ -168,9 +174,11 @@ sudo srsRAN_4G/build/srsue/src/srsue \
 ```
 
 
-## Data Flow
+---
 
-#### E2 Setup — gNB registers with the RIC
+## 🔄 Data Flow
+
+### E2 Setup — gNB registers with the RIC
 
 When the gNB starts it initiates the E2 connection:
 
@@ -191,7 +199,7 @@ After this, e2mgr knows the gNB exists, its node ID, and which E2 service models
 
 ---
 
-#### Subscription — xApp subscribes to KPM metrics
+### Subscription — xApp subscribes to KPM metrics
 
 ```
 xApp                submgr                e2term            gNB E2 Agent
@@ -212,7 +220,7 @@ From this point the gNB starts sending KPM indications every 1000 ms.
 
 ---
 
-#### Indication — gNB pushes KPM metrics to xApp
+### Indication — gNB pushes KPM metrics to xApp
 
 ```
 gNB E2 Agent          e2term                    xApp (all subscribers)
@@ -229,7 +237,7 @@ e2term broadcasts to every port registered for type `12050` in the routing table
 
 ---
 
-#### Control — xApp pushes PRB quota to gNB scheduler
+### Control — xApp pushes PRB quota to gNB scheduler
 
 ```
 xApp              e2term              gNB E2 Agent        MAC Scheduler
@@ -248,7 +256,7 @@ The MAC scheduler applies the new PRB ratios immediately — effect is visible i
 
 ---
 
-#### KPM Metric — full data path from radio to Grafana
+### KPM Metric — full data path from radio to Grafana
 
 Where each metric physically comes from inside the gNB, and how it travels to the dashboard:
 
@@ -288,7 +296,9 @@ Note from `gnb_zmq.yaml` — only the DU E2 agent is enabled (`enable_du_e2: tru
 
 ---
 
-#### UE Setup
+## 🧪 Demo & Result
+
+### UE Setup and Grafana Dashboard
 
 The UE is configured in `oran-sc-ric/e2-agents/srsRAN/ue_zmq.conf`. Key parameters to understand:
 
@@ -376,7 +386,7 @@ To trigger **eMBB** (DL-heavy, ratio ≥ 5): run downlink at high bitrate and up
 To trigger **URLLC** (symmetric): run both DL and UL at similar bitrates.  
 To trigger **mMTC** (idle): stop iperf3 or keep total < 200 kbps.
 
-#### Slice Classification and PRB Management
+### Slice Classification and PRB Management
 
 The `slice_ctrl_xapp` reads InfluxDB every 5 s, classifies the dominant traffic pattern, and sends the corresponding PRB quota to the MAC scheduler via E2SM-RC:
 
