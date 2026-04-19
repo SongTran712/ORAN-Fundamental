@@ -20,13 +20,14 @@ INFLUXDB_DB    = "kpm"
 E2MGR_URL      = "http://e2mgr:3800"
 CTRL_INTERVAL  = 5
 
-LOW_THR_KBPS    = 200
+LOW_THR_KBPS    = 1000
 DL_UL_RATIO_THR = 5.0
 
 PROFILES = {
-    1: {1: (10, 30, 30), 2: (10, 50, 10), 3: (0, 10, 5)},   # eMBB dominant
-    2: {1: (10, 60, 10), 2: (20, 100, 70), 3: (0, 10, 5)},  # URLLC dominant
-    3: {1: (10, 60, 20), 2: (10, 40, 10), 3: (5, 30, 20)},  # mMTC dominant
+    #              SST1(min,max,ded)  SST2(min,max,ded)  SST3(min,max,ded)
+    1: {1: (10, 60, 50), 2: (10, 30, 10), 3: (0, 20, 5)},   # eMBB dominant
+    2: {1: (10, 60, 10), 2: (10, 30, 25), 3: (0, 20, 5)},   # URLLC dominant
+    3: {1: (10, 60, 20), 2: (10, 30, 10), 3: (0, 20, 15)},  # mMTC dominant
 }
 
 

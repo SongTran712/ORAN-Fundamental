@@ -91,9 +91,12 @@ class KpmDashboardXapp(xAppBase):
     def ue_indication_callback(self, e2_agent_id, subscription_id, hdr, msg):
         ue_data = self.e2sm_kpm.extract_meas_data(msg).get("ueMeasData", {})
         for ue_id, ue_report in ue_data.items():
-            fields = {n.replace(".", "_"): v
-                      for n, raw in ue_report.get("measData", {}).items()
-                      if (v := _to_float(raw)) is not None}
+            fields = {}
+            for n, raw in ue_report.get("measData", {}).items():
+                v = _to_float(raw)
+                if v is None:
+                    continue
+                fields[n.replace(".", "_")] = v
             if fields:
                 print(f"[ue]   ue={ue_id}  {fields}")
                 self._write_influx("kpm_ue", {"gnb": e2_agent_id, "ue": f"ue_{ue_id}"}, fields)
